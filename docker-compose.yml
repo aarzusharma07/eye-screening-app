@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: glaucoma_db
+    restart: always
+    environment:
+      POSTGRES_USER: glaucoma_user
+      POSTGRES_PASSWORD: glaucoma_password
+      POSTGRES_DB: glaucoma_screening
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glaucoma_user -d glaucoma_screening"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: glaucoma_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=glaucoma_super_secret_jwt_key_2026
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - UPLOAD_DIR=/app/data/images
+      - REPORT_DIR=/app/data/reports
+      - MODEL_PATH=/app/app/ml/best_glaucoma_model_refined.pth
+      - DR_MODEL_PATH=/app/app/ml/best_dr_model.pth
+    volumes:
+      - .:/app
+      - ./image_data:/app/data/images
+      - ./report_data:/app/data/reports
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  # Host directory mounts provide visible persistence in backend/
+  # and make it easier to inspect database files and uploaded data.
+  # These entries are left for compatibility, but Docker will prefer
+  # the host folders above when running compose from backend/.
+  postgres_data:
+  image_data:
+  report_data:

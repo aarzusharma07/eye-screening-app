@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+eye_screening.db
+postgres_data/
+image_data/
+report_data/
+data/
+*.log
+.DS_Store
+migrations/versions/

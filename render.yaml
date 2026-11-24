@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: eye-screening-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # you will set this manually in Render dashboard
+      - key: JWT_SECRET
+        value: glaucoma_super_secret_jwt_key_2026
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: UPLOAD_DIR
+        value: /app/data/images
+      - key: REPORT_DIR
+        value: /app/data/reports
+      - key: MODEL_PATH
+        value: /app/app/ml/best_glaucoma_model_refined.pth
+      - key: DR_MODEL_PATH
+        value: /app/app/ml/best_dr_model.pth
